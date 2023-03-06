@@ -3,6 +3,7 @@ import gym_super_mario_bros
 from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
 
 import keyboard
+import time 
 
 env = gym_super_mario_bros.make('SuperMarioBros-v0')
 env = JoypadSpace(env, SIMPLE_MOVEMENT)
@@ -18,7 +19,6 @@ env = JoypadSpace(env, SIMPLE_MOVEMENT)
 #     ['left'],
 # ]
 
-import time 
 done = True
 for step in range(5000):
     if done:
@@ -39,7 +39,8 @@ for step in range(5000):
         act = 0
     state, reward, done, info = env.step(act)
     env.render()
-    time.sleep(1/50)
+
+    time.sleep(1/60)
 
 
 env.close()
