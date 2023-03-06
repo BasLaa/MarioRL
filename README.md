@@ -7,7 +7,7 @@ Super Mario API: https://pypi.org/project/gym-super-mario-bros/ is based on Gym:
 
 
 ## Installation
-- Install the Mario API with `pip install gym-super-mario-bros` and `nes_py` with `pip install nes_py`
+- Install the Mario API with `pip install gym-super-mario-bros` and `nes-py` with `pip install nes-py`
 
 - Run from command line as `gym_super_mario_bros -e <the environment ID to play> -m <human or random>` <br>
   NOTE: by default, -e is set to SuperMarioBros-v0 and -m is set to human. <br>
