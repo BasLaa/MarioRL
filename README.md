@@ -14,7 +14,8 @@ Available movement sets: https://github.com/Kautenja/gym-super-mario-bros/blob/m
   NOTE: by default, -e is set to SuperMarioBros-v0 and -m is set to human. <br>
   NOTE: This doesn't work for me
 
-- Run the example runner file instead to play as human: `python run_mario.py`
-  This uses the simple movement set.
+- Run the example runner file instead to play as human: `python run_mario.py` <br>
+  This uses the simple movement set. You can find different move sets as well.<br>
+  There are also more versions of the game: see the docs.
 
 - If you get an error `ValueError: not enough values to unpack (expected 5, got 4)` go to `.../gym/wrappers/time_limit.py` and remove `truncated` everywhere
