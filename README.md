@@ -1,7 +1,9 @@
 # MarioRL
 Intelligent Systems project on reinforcement learning for Super Mario
 
-RL Library: https://intellabs.github.io/coach/index.html
+RL Libraries: 
+- https://intellabs.github.io/coach/index.html
+- https://stable-baselines3.readthedocs.io/en/master/modules/ppo.html
 
 Super Mario API: https://pypi.org/project/gym-super-mario-bros/ is based on Gym: https://www.gymlibrary.dev/api/core/
 
