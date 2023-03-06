@@ -12,7 +12,7 @@ Available movement sets: https://github.com/Kautenja/gym-super-mario-bros/blob/m
 
 - Run from command line as `gym_super_mario_bros -e <the environment ID to play> -m <human or random>` <br>
   NOTE: by default, -e is set to SuperMarioBros-v0 and -m is set to human. <br>
-  NOTE: This doesn't work for me
+  NOTE: This doesn't work for me, use the example runner file instead.
 
 - Run the example runner file instead to play as human: `python run_mario.py` <br>
   This uses the simple movement set. You can find different move sets as well.<br>
