@@ -17,6 +17,8 @@ def run_model(pretrained=False, model_name="mario_rl"):
     if pretrained and os.path.isfile(f'models/{model_name}.zip'):
         print("Found existing model...")
         model = PPO.load(f'models/{model_name}', env=env)
+    elif pretrained:
+        print("Model not found...")
     else:
         print("Training new model...")
         model = PPO("MlpPolicy", env, verbose=1, n_epochs=10, n_steps=3000, batch_size=100)
