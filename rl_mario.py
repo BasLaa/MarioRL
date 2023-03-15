@@ -19,6 +19,7 @@ def run_model(pretrained=False, model_name="mario_rl"):
         model = PPO.load(f'models/{model_name}', env=env)
     elif pretrained:
         print("Model not found...")
+        return
     else:
         print("Training new model...")
         model = PPO("MlpPolicy", env, verbose=1, n_epochs=10, n_steps=3000, batch_size=100)
@@ -26,14 +27,16 @@ def run_model(pretrained=False, model_name="mario_rl"):
         model.save(f"models/{model_name}")
 
     vec_env = model.get_env()
-    state = vec_env.reset()
+    obs = vec_env.reset()
 
     for i in range(5000):
-        action, _ = model.predict(state, deterministic=False)
-        state, reward, done, info = vec_env.step(action)
+        action, _state = model.predict(obs, deterministic=False)
+        obs, _reward, _done, _info = vec_env.step(action)
+        print(_info)
         vec_env.render()
-        time.sleep(1/120)
+        time.sleep(1/20)
 
 # Models are saved in folder "models"
 if __name__ == "__main__":
-    run_model(pretrained=False)
+    run_model(pretrained=True, model_name="mario_rl")
+
