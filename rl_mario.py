@@ -11,6 +11,7 @@ import time
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
+# 4 million steps
 N_TIMESTEPS = 4000000
 LEARNING_RATE = 0.0001
 GAMMA = 0.95
@@ -18,6 +19,8 @@ N_EPOCHS = 40
 N_STEPS = 2048
 BATCH_SIZE = 64
 
+# Save a model every 'LOG_FREQ' timesteps (10 models here)
+LOG_FREQ = N_TIMESTEPS // 10
 
 def run_model(env, pretrained=False, model_name="mario_rl", callback=None, logger=None):
 
@@ -54,12 +57,12 @@ if __name__ == "__main__":
     # skip is number of frames that are skipped
     env = make_env.make_env(env, skip=4, move_set=RIGHT_ONLY)
 
-    # Stops training on no improvement
+    # Stops training on no improvement (Not using atm)
     # stop_train_callback = StopTrainingOnNoModelImprovement(max_no_improvement_evals=30, min_evals=5, verbose=1)
     # eval_callback = EvalCallback(env, eval_freq=1000, callback_after_eval=stop_train_callback, verbose=1)
 
     checkpoint_callback = callbacks.TrainAndLoggingCallback(
-        check_freq=5000,
+        log_freq=LOG_FREQ,
         save_path="./model_logs/",
         name_prefix="ppo_model",
     )

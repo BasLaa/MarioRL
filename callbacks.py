@@ -34,9 +34,9 @@ class ProgressBarManager(object):
 
 class TrainAndLoggingCallback(BaseCallback):
 
-    def __init__(self, check_freq, save_path, name_prefix="", verbose=1):
+    def __init__(self, log_freq, save_path, name_prefix="", verbose=1):
         super(TrainAndLoggingCallback, self).__init__(verbose)
-        self.check_freq = check_freq
+        self.log_freq = log_freq
         self.save_path = save_path
         self.name_prefix = name_prefix
 
@@ -45,7 +45,7 @@ class TrainAndLoggingCallback(BaseCallback):
             os.makedirs(self.save_path, exist_ok=True)
 
     def _on_step(self):
-        if self.n_calls % self.check_freq == 0:
+        if self.n_calls % self.log_freq == 0:
             model_path = os.path.join(self.save_path, self.name_prefix+'_{}'.format(self.n_calls))
             self.model.save(model_path)
 
