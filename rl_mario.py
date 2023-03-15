@@ -13,12 +13,12 @@ env = JoypadSpace(env, RIGHT_ONLY)
 model_name = "ppo_mario"
 
 def run_model(pretrained=False, model_name="mario_rl"):
-    if pretrained and os.path.isfile(f'artifacts/{model_name}.zip'):
+    if pretrained and os.path.isfile(f'models/{model_name}.zip'):
         print("Found existing model...")
-        model = PPO.load(f'artifacts/{model_name}', env=env)
+        model = PPO.load(f'models/{model_name}', env=env)
     else:
         print("Training new model...")
-        model = PPO("MlpPolicy", env, verbose=1, n_epochs=50, n_steps=10000, batch_size=100)
+        model = PPO("MlpPolicy", env, verbose=1, n_epochs=10, n_steps=3000, batch_size=100)
         model.learn(total_timesteps=4000,)
         model.save(f"models/{model_name}")
 
@@ -31,5 +31,6 @@ def run_model(pretrained=False, model_name="mario_rl"):
         vec_env.render()
         time.sleep(1/120)
 
+# Models are saved in folder "models"
 if __name__ == "__main__":
-    run_model()
+    run_model(pretrained=True)
