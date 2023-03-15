@@ -45,7 +45,7 @@ def run_model(env, pretrained=False, model_name="mario_rl", callback=None, logge
         print("Training new model...")
 
         model = PPO(
-            "MlpPolicy", env, verbose=1, learning_rate=lr_schedule(LEARNING_RATE), 
+            "CnnPolicy", env, verbose=1, learning_rate=lr_schedule(LEARNING_RATE), 
             gamma=GAMMA, n_epochs=N_EPOCHS, n_steps=N_STEPS, 
             batch_size=BATCH_SIZE, ent_coef=ENT_COEF, )
         
