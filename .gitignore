@@ -1,6 +1,8 @@
 
 .idea/
 models/
+model_logs/
+logs/
 __pycache__/
 
 this one too.png
