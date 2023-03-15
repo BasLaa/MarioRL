@@ -13,14 +13,25 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 # 4 million steps
 N_TIMESTEPS = 4000000
-LEARNING_RATE = 0.0001
-GAMMA = 0.95
-N_EPOCHS = 40
-N_STEPS = 2048
+LEARNING_RATE = 3e-4
+GAMMA = 0.97
+N_EPOCHS = 10
+N_STEPS = 4096
 BATCH_SIZE = 64
+ENT_COEF = 0.003
 
-# Save a model every 'LOG_FREQ' timesteps (10 models here)
+# Save a model every 'LOG_FREQ' timesteps (10 models in total saved)
 LOG_FREQ = N_TIMESTEPS // 10
+
+# Linear decrease of learning rate with progress
+def lr_schedule(initial_value):
+    def func(progress):
+        """
+        Progress will decrease from 1 (beginning) to 0.
+        """
+        return progress * initial_value
+
+    return func
 
 def run_model(env, pretrained=False, model_name="mario_rl", callback=None, logger=None):
 
@@ -32,7 +43,12 @@ def run_model(env, pretrained=False, model_name="mario_rl", callback=None, logge
         return
     else:
         print("Training new model...")
-        model = PPO("MlpPolicy", env, verbose=1, learning_rate=LEARNING_RATE, gamma=GAMMA, n_epochs=N_EPOCHS, n_steps=N_STEPS, batch_size=BATCH_SIZE)
+
+        model = PPO(
+            "MlpPolicy", env, verbose=1, learning_rate=lr_schedule(LEARNING_RATE), 
+            gamma=GAMMA, n_epochs=N_EPOCHS, n_steps=N_STEPS, 
+            batch_size=BATCH_SIZE, ent_coef=ENT_COEF, )
+        
         model.set_logger(logger)
         with callbacks.ProgressBarManager(N_TIMESTEPS) as progress_callback: # this the garanties that the tqdm progress bar closes correctly
             final_callback = CallbackList([callback, progress_callback])
