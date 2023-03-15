@@ -5,7 +5,7 @@ import make_env
 
 import time 
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+#os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 
 def run_model(pretrained=False, model_name="mario_rl"):
@@ -38,5 +38,5 @@ def run_model(pretrained=False, model_name="mario_rl"):
 
 # Models are saved in folder "models"
 if __name__ == "__main__":
-    run_model(pretrained=True, model_name="mario_rl")
-
+    run_model(pretrained=False)
+#%%
