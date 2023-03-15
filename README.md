@@ -25,3 +25,6 @@ RL Examples:
   There are also more versions of the game: see the docs.
 
 - If you get an error `ValueError: not enough values to unpack (expected 5, got 4)` go to `.../gym/wrappers/time_limit.py` and remove `truncated` everywhere
+
+## Open Overleaf
+You can find it here [Overleaf](https://www.overleaf.com/8992131225tvjrqhmmstrp)
