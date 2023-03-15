@@ -9,6 +9,10 @@ Super Mario API: https://pypi.org/project/gym-super-mario-bros/ is based on Gym:
 
 Available movement sets: https://github.com/Kautenja/gym-super-mario-bros/blob/master/gym_super_mario_bros/actions.py
 
+RL Examples:
+  https://pytorch.org/tutorials/intermediate/mario_rl_tutorial.html
+  
+
 ## Installation
 - Install the Mario API with `pip install gym-super-mario-bros` and `nes-py` with `pip install nes-py`
 
