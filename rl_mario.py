@@ -11,15 +11,15 @@ import time
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
-N_TIMESTEPS = 1500000
+N_TIMESTEPS = 2000000
 LEARNING_RATE = 0.00003
 GAMMA = 0.99
 N_EPOCHS = 10
 N_STEPS = 2048
 BATCH_SIZE = 64
 
-# Save a model every 'LOG_FREQ' timesteps (10 models in total saved)
-LOG_FREQ = N_TIMESTEPS // 10
+# Save a model every 'LOG_FREQ' timesteps
+LOG_FREQ = N_TIMESTEPS // 30
 
 # Linear decrease of learning rate with progress
 def lr_schedule(initial_value):
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     # stop_train_callback = StopTrainingOnNoModelImprovement(max_no_improvement_evals=30, min_evals=5, verbose=1)
     # eval_callback = EvalCallback(env, eval_freq=1000, callback_after_eval=stop_train_callback, verbose=1)
 
-    model_name = "cust_reward_3"
+    model_name = "night_2_2m"
 
     checkpoint_callback = callbacks.TrainAndLoggingCallback(
         log_freq=LOG_FREQ,
@@ -85,11 +85,11 @@ if __name__ == "__main__":
 
     logger_path = f"./models/{model_name}/logs/"
     # set up logger
-    new_logger = configure(logger_path, ["stdout", "csv", "tensorboard"])
+    new_logger = configure(logger_path, ["csv", "tensorboard"])
 
 
     # TRAINING MODEL
-    # run_model(env, model_name=model_name, pretrained=False, callback=checkpoint_callback, logger=new_logger)
+    run_model(env, model_name=model_name, pretrained=False, callback=checkpoint_callback, logger=new_logger)
 
     # RUNNING TRAINED MODEL
-    run_model(env=env, pretrained=True, model_name=model_name)
+    # run_model(env=env, pretrained=True, model_name=model_name)
