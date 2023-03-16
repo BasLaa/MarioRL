@@ -12,11 +12,13 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 N_TIMESTEPS = 2000000
-LEARNING_RATE = 0.00003
+LEARNING_RATE = 0.00001
 GAMMA = 0.99
 N_EPOCHS = 10
-N_STEPS = 2048
-BATCH_SIZE = 64
+N_STEPS = 4096
+BATCH_SIZE = 128
+
+SKIP_FREQ = 6
 
 # Save a model every 'LOG_FREQ' timesteps
 LOG_FREQ = N_TIMESTEPS // 30
@@ -43,7 +45,8 @@ def run_model(env, pretrained=False, model_name="mario_rl", callback=None, logge
         print("Training new model...")
 
         model = PPO(
-            "CnnPolicy", env, verbose=1, learning_rate=LEARNING_RATE, n_steps=N_STEPS)
+            "CnnPolicy", env, verbose=1, learning_rate=LEARNING_RATE, n_steps=N_STEPS
+          , gamma=GAMMA, batch_size=BATCH_SIZE, n_epochs=N_EPOCHS,)
         
         model.set_logger(logger)
         with callbacks.ProgressBarManager(N_TIMESTEPS) as progress_callback:
@@ -69,7 +72,7 @@ if __name__ == "__main__":
     env = gym_super_mario_bros.make('SuperMarioBros-v0')
 
     # skip is number of frames that are skipped
-    env = make_env.make_env(env, skip=6, move_set=RIGHT_ONLY)
+    env = make_env.make_env(env, skip=SKIP_FREQ, move_set=RIGHT_ONLY)
 
     # Stops training on no improvement (Not using atm)
     # stop_train_callback = StopTrainingOnNoModelImprovement(max_no_improvement_evals=30, min_evals=5, verbose=1)
