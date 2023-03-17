@@ -7,8 +7,9 @@ from stable_baselines3.common.logger import configure
 import callbacks
 import make_env
 
-import time 
+import time
 import os
+
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 N_TIMESTEPS = 2000000
@@ -23,6 +24,7 @@ SKIP_FREQ = 6
 # Save a model every 'LOG_FREQ' timesteps
 LOG_FREQ = N_TIMESTEPS // 30
 
+
 # Linear decrease of learning rate with progress
 def lr_schedule(initial_value):
     def func(progress):
@@ -33,11 +35,20 @@ def lr_schedule(initial_value):
 
     return func
 
-def run_model(env, pretrained=False, model_name="mario_rl", callback=None, logger=None):
 
+def run_model(env, pretrained=False, continue_learning=False, model_name="mario_rl", callback=None, logger=None):
     if pretrained and os.path.isfile(f'models/{model_name}/{model_name}.zip'):
         print("Found existing model...")
         model = PPO.load(f'models/{model_name}/{model_name}', env=env)
+
+        if continue_learning:
+            model.set_logger(logger)
+            model.set_env(env)
+            with callbacks.ProgressBarManager(N_TIMESTEPS) as progress_callback:
+                final_callback = CallbackList([callback, progress_callback])
+                model.learn(total_timesteps=N_TIMESTEPS, callback=final_callback)
+            model.save(f"models/{model_name}/{model_name}")
+
     elif pretrained:
         print("Model not found...")
         return
@@ -46,8 +57,8 @@ def run_model(env, pretrained=False, model_name="mario_rl", callback=None, logge
 
         model = PPO(
             "CnnPolicy", env, verbose=1, learning_rate=LEARNING_RATE, n_steps=N_STEPS
-          , gamma=GAMMA, batch_size=BATCH_SIZE, n_epochs=N_EPOCHS,)
-        
+            , gamma=GAMMA, batch_size=BATCH_SIZE, n_epochs=N_EPOCHS, )
+
         model.set_logger(logger)
         with callbacks.ProgressBarManager(N_TIMESTEPS) as progress_callback:
             final_callback = CallbackList([callback, progress_callback])
@@ -63,12 +74,11 @@ def run_model(env, pretrained=False, model_name="mario_rl", callback=None, logge
         print(_info)
         print(_reward)
         env.render()
-        time.sleep(1/60)
+        time.sleep(1 / 60)
 
 
 # Models are saved in folder "models"
 if __name__ == "__main__":
-
     env = gym_super_mario_bros.make('SuperMarioBros-v0')
 
     # skip is number of frames that are skipped
@@ -78,7 +88,7 @@ if __name__ == "__main__":
     # stop_train_callback = StopTrainingOnNoModelImprovement(max_no_improvement_evals=30, min_evals=5, verbose=1)
     # eval_callback = EvalCallback(env, eval_freq=1000, callback_after_eval=stop_train_callback, verbose=1)
 
-    model_name = "night_2_2m"
+    model_name = "bas_baseline"
 
     checkpoint_callback = callbacks.TrainAndLoggingCallback(
         log_freq=LOG_FREQ,
@@ -90,9 +100,12 @@ if __name__ == "__main__":
     # set up logger
     new_logger = configure(logger_path, ["csv", "tensorboard"])
 
-
     # TRAINING MODEL
-    run_model(env, model_name=model_name, pretrained=False, callback=checkpoint_callback, logger=new_logger)
+    # run_model(env, model_name=model_name, pretrained=False, callback=checkpoint_callback, logger=new_logger)
+
+    # CONTINUE TRAINING MODEL
+    run_model(env=env, pretrained=True, continue_learning=True, model_name=model_name, callback=checkpoint_callback,
+              logger=new_logger)
 
     # RUNNING TRAINED MODEL
     # run_model(env=env, pretrained=True, model_name=model_name)
