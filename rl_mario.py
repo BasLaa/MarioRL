@@ -11,17 +11,17 @@ import time
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
-# 4 million steps
-N_TIMESTEPS = 4000000
-LEARNING_RATE = 3e-4
-GAMMA = 0.97
+N_TIMESTEPS = 2000000
+LEARNING_RATE = 0.00001
+GAMMA = 0.99
 N_EPOCHS = 10
 N_STEPS = 4096
-BATCH_SIZE = 64
-ENT_COEF = 0.003
+BATCH_SIZE = 128
 
-# Save a model every 'LOG_FREQ' timesteps (10 models in total saved)
-LOG_FREQ = N_TIMESTEPS // 10
+SKIP_FREQ = 6
+
+# Save a model every 'LOG_FREQ' timesteps
+LOG_FREQ = N_TIMESTEPS // 30
 
 # Linear decrease of learning rate with progress
 def lr_schedule(initial_value):
@@ -35,9 +35,9 @@ def lr_schedule(initial_value):
 
 def run_model(env, pretrained=False, model_name="mario_rl", callback=None, logger=None):
 
-    if pretrained and os.path.isfile(f'models/{model_name}.zip'):
+    if pretrained and os.path.isfile(f'models/{model_name}/{model_name}.zip'):
         print("Found existing model...")
-        model = PPO.load(f'models/{model_name}', env=env)
+        model = PPO.load(f'models/{model_name}/{model_name}', env=env)
     elif pretrained:
         print("Model not found...")
         return
@@ -45,24 +45,25 @@ def run_model(env, pretrained=False, model_name="mario_rl", callback=None, logge
         print("Training new model...")
 
         model = PPO(
-            "CnnPolicy", env, verbose=1, learning_rate=lr_schedule(LEARNING_RATE), 
-            gamma=GAMMA, n_epochs=N_EPOCHS, n_steps=N_STEPS, 
-            batch_size=BATCH_SIZE, ent_coef=ENT_COEF, )
+            "CnnPolicy", env, verbose=1, learning_rate=LEARNING_RATE, n_steps=N_STEPS
+          , gamma=GAMMA, batch_size=BATCH_SIZE, n_epochs=N_EPOCHS,)
         
         model.set_logger(logger)
-        with callbacks.ProgressBarManager(N_TIMESTEPS) as progress_callback: # this the garanties that the tqdm progress bar closes correctly
+        with callbacks.ProgressBarManager(N_TIMESTEPS) as progress_callback:
             final_callback = CallbackList([callback, progress_callback])
             model.learn(total_timesteps=N_TIMESTEPS, callback=final_callback)
-        model.save(f"models/{model_name}")
+        model.save(f"models/{model_name}/{model_name}")
 
-    vec_env = model.get_env()
-    obs = vec_env.reset()
-
+    done = True
     for i in range(5000):
+        if done:
+            obs = env.reset()
         action, _state = model.predict(obs, deterministic=False)
-        obs, _reward, _done, _info = vec_env.step(action)
-        vec_env.render()
-        time.sleep(1/120)
+        obs, _reward, done, _info = env.step(action)
+        print(_info)
+        print(_reward)
+        env.render()
+        time.sleep(1/60)
 
 
 # Models are saved in folder "models"
@@ -71,25 +72,27 @@ if __name__ == "__main__":
     env = gym_super_mario_bros.make('SuperMarioBros-v0')
 
     # skip is number of frames that are skipped
-    env = make_env.make_env(env, skip=4, move_set=RIGHT_ONLY)
+    env = make_env.make_env(env, skip=SKIP_FREQ, move_set=RIGHT_ONLY)
 
     # Stops training on no improvement (Not using atm)
     # stop_train_callback = StopTrainingOnNoModelImprovement(max_no_improvement_evals=30, min_evals=5, verbose=1)
     # eval_callback = EvalCallback(env, eval_freq=1000, callback_after_eval=stop_train_callback, verbose=1)
 
+    model_name = "night_2_2m"
+
     checkpoint_callback = callbacks.TrainAndLoggingCallback(
         log_freq=LOG_FREQ,
-        save_path="./model_logs/",
-        name_prefix="ppo_model",
+        save_path=f"./models/{model_name}/model_logs",
+        name_prefix=model_name,
     )
 
-    logger_path = "./logs/"
+    logger_path = f"./models/{model_name}/logs/"
     # set up logger
-    new_logger = configure(logger_path, ["stdout", "csv", "tensorboard"])
+    new_logger = configure(logger_path, ["csv", "tensorboard"])
 
 
     # TRAINING MODEL
-    run_model(env, model_name="ppo_model_total", pretrained=False, callback=checkpoint_callback, logger=new_logger)
+    run_model(env, model_name=model_name, pretrained=False, callback=checkpoint_callback, logger=new_logger)
 
     # RUNNING TRAINED MODEL
-    # run_model(env=env, pretrained=True, model_name="ppo_model_total")
+    # run_model(env=env, pretrained=True, model_name=model_name)

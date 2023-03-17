@@ -10,7 +10,7 @@ class MaxAndSkipEnv(gym.Wrapper):
         """Return only every `skip`-th frame"""
         super(MaxAndSkipEnv, self).__init__(env)
         # most recent raw observations (for max pooling across time steps)
-        self._obs_buffer = collections.deque(maxlen=2)
+        self._obs_buffer = collections.deque(maxlen=4)
         self._skip = skip
 
     def step(self, action):
@@ -63,11 +63,49 @@ class ScaledFloatFrame(gym.ObservationWrapper):
     """Normalize pixel values in frame --> 0 to 1"""
     def observation(self, obs):
         return np.array(obs).astype(np.float32) / 255.0
+
+
+class CustomRewardEnv(gym.Wrapper):
+    def __init__(self, env, max_wait=40, kill=True):
+        super().__init__(env)
+        self.current_x = 0
+        self.fault_counter = 0
+        self.max_wait = max_wait
+        self.kill = kill
+        
+    def reset(self, **kwargs):
+        self.current_x = 0
+        self.count = 0
+        return self.env.reset(**kwargs)
     
+    def step(self, action):
+        state, reward, done, info = self.env.step(action)
+        new_x = info['x_pos']
+        if new_x <= self.current_x:
+            self.fault_counter += 1
+        else:
+            self.fault_counter = 0
+            self.current_x = new_x
+        
+        if self.fault_counter >= self.max_wait:
+            reward = -15
+            if self.kill:
+                done = True
+
+        if done:
+            if info["flag_get"]:
+                reward = 50
+        
+        if info['world'] == 1:
+            if info['y_pos'] < 75:
+                reward = -10
+        
+        return state, reward, done, info
 
 def make_env(env, skip=4, move_set=RIGHT_ONLY):
     env = MaxAndSkipEnv(env, skip=skip)
     env = ProcessFrame84(env)
     env = ScaledFloatFrame(env)
+    env = CustomRewardEnv(env)
     env = JoypadSpace(env, move_set)
     return env
