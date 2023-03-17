@@ -9,6 +9,7 @@ import make_env
 
 import time
 import os
+import glob
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
@@ -37,24 +38,25 @@ def lr_schedule(initial_value):
 
 
 def run_model(env, pretrained=False, continue_learning=False, model_name="mario_rl", callback=None, logger=None):
-    if pretrained and os.path.isfile(f'models/{model_name}/{model_name}.zip'):
-        print("Found existing model...")
-        model = PPO.load(f'models/{model_name}/{model_name}', env=env)
 
-        if continue_learning:
-            model.set_logger(logger)
-            model.set_env(env)
-            with callbacks.ProgressBarManager(N_TIMESTEPS) as progress_callback:
-                final_callback = CallbackList([callback, progress_callback])
-                model.learn(total_timesteps=N_TIMESTEPS, callback=final_callback)
-            model.save(f"models/{model_name}/{model_name}")
+    if pretrained:
+        files = glob.glob(f"./**/{model_name}.zip", recursive = True)
+        if len(files) == 1:
+            print("Found existing model...")
+            model = PPO.load(files[0], env=env)
 
-    elif pretrained:
-        print("Model not found...")
-        return
+            if continue_learning:
+                model.set_logger(logger)
+                model.set_env(env)
+                with callbacks.ProgressBarManager(N_TIMESTEPS) as progress_callback:
+                    final_callback = CallbackList([callback, progress_callback])
+                    model.learn(total_timesteps=N_TIMESTEPS, callback=final_callback)
+                model.save(f"models/{model_name}/{model_name}")
+        else:
+            print("Model not found...")
+            return
     else:
         print("Training new model...")
-
         model = PPO(
             "CnnPolicy", env, verbose=1, learning_rate=LEARNING_RATE, n_steps=N_STEPS
             , gamma=GAMMA, batch_size=BATCH_SIZE, n_epochs=N_EPOCHS, )
@@ -88,7 +90,7 @@ if __name__ == "__main__":
     # stop_train_callback = StopTrainingOnNoModelImprovement(max_no_improvement_evals=30, min_evals=5, verbose=1)
     # eval_callback = EvalCallback(env, eval_freq=1000, callback_after_eval=stop_train_callback, verbose=1)
 
-    model_name = "bas_baseline"
+    model_name = "cust_reward_3"
 
     checkpoint_callback = callbacks.TrainAndLoggingCallback(
         log_freq=LOG_FREQ,
@@ -97,15 +99,15 @@ if __name__ == "__main__":
     )
 
     logger_path = f"./models/{model_name}/logs/"
-    # set up logger
-    new_logger = configure(logger_path, ["csv", "tensorboard"])
-
     # TRAINING MODEL
+    
+    # set up logger (ONLY UNCOMMENT IF TRAINING)
+    # new_logger = configure(logger_path, ["csv", "tensorboard"])
     # run_model(env, model_name=model_name, pretrained=False, callback=checkpoint_callback, logger=new_logger)
 
     # CONTINUE TRAINING MODEL
-    run_model(env=env, pretrained=True, continue_learning=True, model_name=model_name, callback=checkpoint_callback,
-              logger=new_logger)
+    # run_model(env=env, pretrained=True, continue_learning=True, model_name=model_name, callback=checkpoint_callback,
+            #   logger=new_logger)
 
     # RUNNING TRAINED MODEL
-    # run_model(env=env, pretrained=True, model_name=model_name)
+    run_model(env=env, pretrained=True, model_name=model_name)
