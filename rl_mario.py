@@ -1,5 +1,6 @@
 import gym_super_mario_bros
 from gym_super_mario_bros.actions import RIGHT_ONLY, SIMPLE_MOVEMENT, COMPLEX_MOVEMENT
+from nes_py.wrappers import JoypadSpace
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import CallbackList
 from stable_baselines3.common.logger import configure
@@ -68,11 +69,12 @@ def run_model(env, pretrained=False, continue_learning=False, model_name="mario_
         model.save(f"models/{model_name}/{model_name}")
 
     done = True
+    obs = env.reset()
     for i in range(5000):
         if done:
             obs = env.reset()
         action, _state = model.predict(obs, deterministic=False)
-        obs, _reward, done, _info = env.step(action)
+        obs, _reward, done, _info = env.step(int(action))
         # print(_info)
         # print(_reward)
         env.render()
@@ -82,6 +84,7 @@ def run_model(env, pretrained=False, continue_learning=False, model_name="mario_
 # Models are saved in folder "models"
 if __name__ == "__main__":
     env = gym_super_mario_bros.make('SuperMarioBros-v0')
+    # env = JoypadSpace(env, SIMPLE_MOVEMENT)
 
     # skip is number of frames that are skipped
     env = make_env.make_env(env, skip=SKIP_FREQ, move_set=RIGHT_ONLY)
@@ -90,7 +93,8 @@ if __name__ == "__main__":
     # stop_train_callback = StopTrainingOnNoModelImprovement(max_no_improvement_evals=30, min_evals=5, verbose=1)
     # eval_callback = EvalCallback(env, eval_freq=1000, callback_after_eval=stop_train_callback, verbose=1)
 
-    model_name = "cust_reward_3"
+    # model_name = "nihao_124995"
+    model_name = "nikola_baseline_5_133333"
 
     checkpoint_callback = callbacks.TrainAndLoggingCallback(
         log_freq=LOG_FREQ,
