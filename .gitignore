@@ -1,10 +1,10 @@
 .DS_Store
 .idea/
 models/
-model_logs/
-logs/
 __pycache__/
 
 this one too.png
 
 this one.png
+/logs/
+/model_logs/
