@@ -13,12 +13,12 @@ import glob
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
-N_TIMESTEPS = 2000000
-LEARNING_RATE = 0.00001
+N_TIMESTEPS = 3000000
+LEARNING_RATE = 0.0001
 GAMMA = 0.99
 N_EPOCHS = 10
-N_STEPS = 4096
-BATCH_SIZE = 128
+N_STEPS = 2048
+BATCH_SIZE = 64
 
 SKIP_FREQ = 6
 
@@ -73,10 +73,10 @@ def run_model(env, pretrained=False, continue_learning=False, model_name="mario_
             obs = env.reset()
         action, _state = model.predict(obs, deterministic=False)
         obs, _reward, done, _info = env.step(action)
-        print(_info)
-        print(_reward)
+        # print(_info)
+        # print(_reward)
         env.render()
-        time.sleep(1 / 60)
+        time.sleep(1 / 120)
 
 
 # Models are saved in folder "models"
@@ -102,7 +102,8 @@ if __name__ == "__main__":
     # TRAINING MODEL
     
     # set up logger (ONLY UNCOMMENT IF TRAINING)
-    # new_logger = configure(logger_path, ["csv", "tensorboard"])
+    # new_logger = configure(logger_path, ["stdout", "csv", "tensorboard"])
+
     # run_model(env, model_name=model_name, pretrained=False, callback=checkpoint_callback, logger=new_logger)
 
     # CONTINUE TRAINING MODEL

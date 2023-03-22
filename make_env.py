@@ -4,34 +4,8 @@ import collections
 import cv2
 from nes_py.wrappers import JoypadSpace
 from gym_super_mario_bros.actions import RIGHT_ONLY, SIMPLE_MOVEMENT, COMPLEX_MOVEMENT
-
-class MaxAndSkipEnv(gym.Wrapper):
-    def __init__(self, env=None, skip=4):
-        """Return only every `skip`-th frame"""
-        super(MaxAndSkipEnv, self).__init__(env)
-        # most recent raw observations (for max pooling across time steps)
-        self._obs_buffer = collections.deque(maxlen=4)
-        self._skip = skip
-
-    def step(self, action):
-        total_reward = 0.0
-        done = None
-        for _ in range(self._skip):
-            obs, reward, done, info = self.env.step(action)
-            self._obs_buffer.append(obs)
-            total_reward += reward
-            if done:
-                break
-        max_frame = np.max(np.stack(self._obs_buffer), axis=0)
-        return max_frame, total_reward, done, info
-
-    def reset(self):
-        """Clear past frame buffer and init to first obs"""
-        self._obs_buffer.clear()
-        obs = self.env.reset()
-        self._obs_buffer.append(obs)
-        return obs
-
+from stable_baselines3.common.atari_wrappers import MaxAndSkipEnv
+from stable_baselines3.common.vec_env import VecFrameStack, DummyVecEnv
 
 class ProcessFrame84(gym.ObservationWrapper):
     """
@@ -66,7 +40,7 @@ class ScaledFloatFrame(gym.ObservationWrapper):
 
 
 class CustomRewardEnv(gym.Wrapper):
-    def __init__(self, env, max_wait=40, kill=True):
+    def __init__(self, env, max_wait=30, kill=True):
         super().__init__(env)
         self.current_x = 0
         self.fault_counter = 0
@@ -105,7 +79,9 @@ class CustomRewardEnv(gym.Wrapper):
 def make_env(env, skip=4, move_set=RIGHT_ONLY):
     env = MaxAndSkipEnv(env, skip=skip)
     env = ProcessFrame84(env)
-    env = ScaledFloatFrame(env)
     env = CustomRewardEnv(env)
     env = JoypadSpace(env, move_set)
+
+    # env = DummyVecEnv([lambda: env])
+    # env = VecFrameStack(env, 4, channels_order='last')
     return env
