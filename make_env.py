@@ -8,6 +8,7 @@ from stable_baselines3.common.atari_wrappers import MaxAndSkipEnv
 from stable_baselines3.common.vec_env import VecFrameStack, DummyVecEnv
 
 class ProcessFrame84(gym.ObservationWrapper):
+    # See https://blog.paperspace.com/building-double-deep-q-network-super-mario-bros/
     """
     Downsamples image to 84x84
     Greyscales image
