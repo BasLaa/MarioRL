@@ -26,5 +26,5 @@ RL Examples:
 
 - If you get an error `ValueError: not enough values to unpack (expected 5, got 4)` go to `.../gym/wrappers/time_limit.py` and remove `truncated` everywhere
 
-## Open Overleaf
-You can find it here [Overleaf](https://www.overleaf.com/8992131225tvjrqhmmstrp)
+## Running
+- To train, continue training or run a model use rl_mario.py with respectively uncommented sections.
