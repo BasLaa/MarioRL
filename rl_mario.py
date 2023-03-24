@@ -93,8 +93,7 @@ if __name__ == "__main__":
     # stop_train_callback = StopTrainingOnNoModelImprovement(max_no_improvement_evals=30, min_evals=5, verbose=1)
     # eval_callback = EvalCallback(env, eval_freq=1000, callback_after_eval=stop_train_callback, verbose=1)
 
-    # model_name = "nihao_124995"
-    model_name = "nikola_baseline_5_133333"
+    model_name = "attempt5_model"
 
     checkpoint_callback = callbacks.TrainAndLoggingCallback(
         log_freq=LOG_FREQ,
